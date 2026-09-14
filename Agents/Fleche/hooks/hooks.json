@@ -1,0 +1,27 @@
+{
+  "_comment": "Generato da tools/setup.py con l'interprete rilevato su questa macchina (/opt/homebrew/opt/python@3.14/bin/python3.14). Non modificarlo a mano: rieseguire setup.py se l'interprete cambia. Il guardrail sul divieto di consulenza gira su UserPromptSubmit, cioè PRIMA che il modello possa decidere — è l'unico punto in cui un controllo intercetta la richiesta e non l'azione che ne consegue. Un controllo sulla chiamata a strumento interviene solo se il modello ha già deciso di agire, e un modello che decide di non agire non lo incontra mai.",
+  "_interprete": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/opt/python@3.14/bin/python3.14 \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/guardrail-finanza.py\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/opt/python@3.14/bin/python3.14 \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/capability-guard.py\""
+          }
+        ],
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash"
+      }
+    ]
+  }
+}

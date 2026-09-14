@@ -1,0 +1,72 @@
+{
+  "schema": "fleche.guardrails.v1",
+  "version": "1.0.0",
+  "_comment": "Guardrail deterministici di Flèche. Il divieto che la challenge impone — nessuna raccomandazione di investimento, nessuna consulenza personalizzata, nessuna indicazione su cosa comprare, vendere o scegliere — è codificato qui come pattern, non affidato al prompt. La differenza è dimostrabile: un prompt che dice 'non dare consigli' è un'istruzione che il modello può interpretare; un pattern che blocca prima della risposta è un controllo che produce un record nel log. Il deliverable 'Risk & Clarity Note' chiede di documentare come l'ambiguità è stata evitata: questo file è la risposta, e la catena di audit ne è l'evidenza.",
+  "_limite_dichiarato": "Questi pattern intercettano la FORMA della richiesta di consiglio, non la sua sostanza. Una domanda formulata in modo obliquo — 'un mio amico si chiede se...' — può passare. Il guardrail riduce la superficie, non la annulla: la difesa completa richiede anche il giudizio del modello, che resta necessario. Dichiararlo è parte della Risk Note, non un'ammissione da nascondere.",
+  "prohibited": [
+    {
+      "id": "adv_01_cosa_scegliere",
+      "severity": "deny",
+      "regex": "\\b(cosa|quale|quali|che\\s+cosa)\\b[^.?!]{0,40}?\\b(mi\\s+)?(conviene|consigli\\w*|suggerisc\\w+|devo|dovrei|posso)\\b[^.?!]{0,20}?\\b(comprare|acquistare|vendere|scegliere|sottoscrivere|aprire|investire|prendere|fare|mettere)\\b",
+      "description": "Richiesta di indicazione su cosa comprare, vendere o scegliere.",
+      "why_prohibited": "La challenge vieta esplicitamente indicazioni su cosa comprare, vendere o scegliere. È il confine fra educazione e consulenza.",
+      "redirect": "Posso spiegarti come funziona lo strumento e quali variabili contano nella valutazione, così puoi decidere tu.",
+      "_nota_regex": "L'oggetto puo' stare FRA il pronome interrogativo e il verbo modale: 'quale fondo devo scegliere'. La prima versione richiedeva adiacenza e mancava proprio la forma piu' naturale in italiano."
+    },
+    {
+      "id": "adv_02_conviene",
+      "severity": "deny",
+      "regex": "\\b(mi\\s+)?conviene\\b|\\bè\\s+(meglio|conveniente|vantaggioso)\\s+(che\\s+io\\s+)?(compri|apra|investa|sottoscriva|scelga)\\b|\\bfaccio\\s+bene\\s+a\\b",
+      "description": "Richiesta di giudizio di convenienza su una scelta personale.",
+      "why_prohibited": "Rispondere 'sì, conviene' è consulenza personalizzata: dipende da dati che il sistema non ha e da una valutazione che non gli compete.",
+      "redirect": "Posso mostrarti come si calcola il costo o il rendimento, e cosa cambia al variare delle condizioni."
+    },
+    {
+      "id": "adv_03_raccomandazione_investimento",
+      "severity": "deny",
+      "regex": "\\b(consigli\\w*|raccomand\\w*|suggeris\\w*)\\b[^.?!]{0,60}\\b(investim\\w*|azioni|obbligazion\\w*|fondi?|etf|crypto|criptovalut\\w*|bitcoin|titoli|bond|portafoglio)\\b|\\b(dove|come)\\s+(investire|investo)\\b",
+      "description": "Richiesta di raccomandazione su investimenti o strumenti finanziari.",
+      "why_prohibited": "Raccomandazione di investimento: vietata dalla challenge, e in Italia è attività riservata a soggetti autorizzati.",
+      "redirect": "Posso spiegarti la differenza fra le categorie di strumenti e come si leggono i costi, senza indicarne alcuno."
+    },
+    {
+      "id": "adv_04_previsione_mercato",
+      "severity": "deny",
+      "regex": "\\b(quanto|come|dove)\\s+(salir\\w+|scender\\w+|andr\\w+|cresc\\w+)\\b[^.?!]{0,40}\\b(mercat\\w*|borsa|prezz\\w*|tass\\w*|inflazion\\w*|cambio)\\b|\\bprevision\\w*\\s+(di\\s+)?(mercato|borsa|prezzi|tassi)\\b",
+      "description": "Richiesta di previsione su mercati, prezzi o tassi.",
+      "why_prohibited": "Una previsione presentata da un sistema educativo viene letta come una base su cui decidere. Non è educazione: è consulenza mascherata da informazione.",
+      "redirect": "Posso spiegarti come un tasso o l'inflazione agiscono su una somma nel tempo, con i numeri che scegli tu."
+    },
+    {
+      "id": "adv_05_dato_personale_per_consiglio",
+      "severity": "ask",
+      "regex": "\\b(ho|guadagno|possiedo|risparmio)\\b[^.?!]{0,30}\\b(euro|€|\\d{3,})\\b[^.?!]{0,40}\\b(cosa|come|dove|quale)\\b",
+      "description": "Dato personale fornito insieme a una richiesta di indicazione.",
+      "why_prohibited": "Un consiglio calibrato su dati personali è consulenza personalizzata, anche quando la domanda sembra educativa.",
+      "redirect": "Posso usare i tuoi numeri per mostrarti un calcolo — quanto costa una rata, quanto vale una somma fra dieci anni — senza dirti cosa farne."
+    }
+  ],
+  "allowed_educational": [
+    {
+      "id": "edu_01_spiegazione_concetto",
+      "description": "Spiegazione di un concetto: interesse, TAEG, inflazione, rata, commissione.",
+      "example": "Cos'è il TAEG e in cosa differisce dal TAN?"
+    },
+    {
+      "id": "edu_02_lettura_documento",
+      "description": "Traduzione del gergo di un estratto conto, di una bolletta, di un contratto.",
+      "example": "Cosa significa questa voce sull'estratto conto?"
+    },
+    {
+      "id": "edu_03_calcolo_trasparente",
+      "description": "Calcolo di cui si mostra la formula e le variabili, con numeri forniti dall'utente.",
+      "example": "Quanto interesse maturo su 1000 euro al 3% in due anni?"
+    },
+    {
+      "id": "edu_04_simulazione_neutra",
+      "description": "Proiezione che mostra più scenari senza indicarne uno preferibile.",
+      "example": "Come cambia il totale se metto da parte 50 euro al mese invece di 30?"
+    }
+  ],
+  "_nota_su_edu_04": "La simulazione neutra è il confine più sottile. Mostrare due scenari è educazione; dire quale sia migliore è consulenza. La regola operativa: il sistema mostra i numeri di entrambi e non aggiunge un giudizio comparativo. Se l'utente chiede quale sia meglio, scatta adv_02."
+}

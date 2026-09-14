@@ -1,0 +1,109 @@
+{
+  "schema": "fleche.capabilities.v1",
+  "version": "1.0.0",
+  "_comment": "Nove agenti, con permessi distinti. Il criterio di taglio: ogni ruolo esiste perché separa una responsabilità che, se accorpata, invaliderebbe il lavoro. f-clarity valuta la semplificazione e per questo non deve poter modificare ciò che valuta — un valutatore che può correggere ciò che valuta segnala solo ciò che sa sistemare.",
+  "fallback_agent": "f-dev",
+  "_fallback_comment": "Quando subagent_type non risolve a un agente noto, si applica f-dev e si registra 'identity_unresolved'. Compromesso consapevole per un hackathon presidiato: il costo di un blocco spurio supera il rischio di un permesso concesso a un id non identificato. In un sistema non presidiato la scelta sarebbe opposta.",
+  "write_scopes": {
+    "none": [],
+    "all": [
+      "**"
+    ],
+    "docs": [
+      "docs/**",
+      "README.md",
+      "*.md"
+    ],
+    "code": [
+      "src/**",
+      "lib/**",
+      "app/**",
+      "tests/**",
+      "test/**",
+      "package.json",
+      "requirements.txt",
+      "pyproject.toml",
+      "index.html",
+      "*.config.js",
+      "*.config.ts"
+    ],
+    "clarity_reports": [
+      "docs/clarity/**"
+    ],
+    "pipeline": [
+      "docs/pipeline/**"
+    ],
+    "acceptance": [
+      "docs/acceptance.md",
+      "docs/acceptance/**"
+    ]
+  },
+  "agents": {
+    "f-analyst": {
+      "write": "docs",
+      "why_scope": "Produce lo scenario educativo e i criteri verificabili. Non implementa: se potesse scrivere codice, la specifica e l'implementazione convergerebbero e nessuno potrebbe verificare che la seconda soddisfi la prima.",
+      "role": "Dal tema della challenge a uno scenario educativo preciso, con il User Difficulty Statement e criteri di accettazione verificabili."
+    },
+    "f-dev": {
+      "write": "code",
+      "why_scope": "Implementa la capability software. Non scrive in docs/: la specifica non si modifica per farla corrispondere al codice scritto — è la direzione opposta a quella corretta.",
+      "role": "Implementa lo scenario: parser, calcolo, interfaccia. La capability software concreta che la challenge richiede."
+    },
+    "f-clarity": {
+      "write": "clarity_reports",
+      "why_none": "non applicabile",
+      "why_scope": "Valuta la semplificazione e produce la Risk & Clarity Note. Scrive SOLO il proprio report: se potesse modificare il testo semplificato o il codice, valuterebbe il proprio lavoro. È il vincolo che rende la sua valutazione credibile, non una limitazione da aggirare.",
+      "role": "Verifica che la semplificazione non abbia alterato il significato. Produce il deliverable 03: cosa è stato semplificato, cosa non è stato alterato, come è stata evitata l'ambiguità."
+    },
+    "f-orc": {
+      "write": "pipeline",
+      "why_scope": "Coordina e mantiene lo stato. Non produce i deliverable: se li scrivesse, la separazione fra chi coordina e chi esegue svanirebbe, e nessuno verificherebbe che ogni passaggio abbia fatto il suo lavoro.",
+      "role": "Orchestratore: scompone, instrada, itera fino ai criteri. Sceglie cosa tagliare per tempo CHIEDENDO, non decidendo.",
+      "_nota": "f-orc e' una SKILL (skills/f-orc/SKILL.md), non un agente. Resta nei profili perche' il capability-guard governa anche le sue scritture. La ragione per cui e' una skill e non un agente e' funzionale e non stilistica: l'orchestratore gira nel thread principale, l'unico contesto che puo' dispatchare subagent via Task. Un subagent non puo' dispatchare altri subagent — quindi un f-orc agente non avrebbe potuto fare il suo lavoro. Errore corretto dopo che l'operatore ha chiesto perche' l'orchestratore fosse un agente."
+    },
+    "f-test-design": {
+      "write": "acceptance",
+      "execute": false,
+      "why_scope": "Progetta i casi PRIMA del codice e non li esegue: un agente che progetta i test e puo' eseguirli tende a scriverli in modo che passino. E non scrive in tests/: produce la descrizione, non il codice.",
+      "role": "Deriva gli scenari di test dai criteri, prima dell'implementazione."
+    },
+    "f-tester": {
+      "write": "none",
+      "why_none": "esegue e riporta; se potesse correggere, certificherebbe il proprio lavoro",
+      "role": "Esegue i test, riporta numeri e non giudizi, verifica la copertura dei criteri."
+    },
+    "f-readability": {
+      "write": "clarity_reports",
+      "why_scope": "Misura la leggibilita' con Gulpease. Non modifica i testi che misura: se potesse riscriverli per alzare il punteggio, la misura non significherebbe niente.",
+      "role": "Deliverable 02: confronto prima/dopo come MISURA, non come opinione."
+    },
+    "f-critic": {
+      "write": "none",
+      "why_none": "valuta contro rubriche; se potesse correggere, valuterebbe il proprio lavoro",
+      "role": "Review contro criteri espliciti. Severo su R6 (capability software) e R9-R11 (il divieto di consulenza nel codice)."
+    },
+    "f-devil": {
+      "write": "none",
+      "why_none": "attacca la semplificazione; mostra il problema, non lo risolve",
+      "role": "Trova le conclusioni sbagliate che un utente trarrebbe da un testo formalmente corretto."
+    }
+  },
+  "_percorso_minimo": [
+    "f-analyst",
+    "f-dev",
+    "f-readability",
+    "f-clarity"
+  ],
+  "_percorso_completo": [
+    "/f-orc (skill)",
+    "f-analyst",
+    "f-test-design",
+    "f-dev",
+    "f-tester",
+    "f-critic",
+    "f-clarity",
+    "f-readability",
+    "f-devil"
+  ],
+  "_comment_percorsi": "Nove agenti sono costruiti, non tutti vanno invocati. Cinque ore per due persone sono dieci ore-persona, e la pipeline stessa consuma tempo: il criterio di successo e' 'i tre deliverable esistono e la demo funziona', non 'tutti gli agenti hanno contribuito'. Il percorso minimo produce i tre deliverable. f-test-design e' il primo opzionale da recuperare, e va invocato PRIMA di f-dev — dopo sarebbe inutile, perche' la sua ragione d'essere e' che i test siano progettati senza vedere l'implementazione."
+}

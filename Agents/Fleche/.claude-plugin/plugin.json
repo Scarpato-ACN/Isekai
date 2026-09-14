@@ -1,0 +1,8 @@
+{
+  "name": "fleche",
+  "version": "0.1.0",
+  "description": "Flèche — sistema agentico per l'educazione alla finanza personale di base. Control plane con guardrail deterministici sul divieto di consulenza finanziaria, catena di audit delle decisioni, capability per agente.",
+  "author": { "name": "Salvatore Scarpato" },
+  "contributors": ["Marco"],
+  "license": "Uso riservato"
+}
